@@ -1,0 +1,23 @@
+{
+  "name": "vsts-pullrequests-hub",
+  "version": "1.0.9",
+  "description": "Pull requests hub for vsts",
+  "main": "index.js",
+  "scripts": {
+    "build": "tfx extension create"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BigSlimeGuy/vsts-pullrequests-hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BigSlimeGuy/vsts-pullrequests-hub/issues"
+  },
+  "homepage": "https://github.com/BigSlimeGuy/vsts-pullrequests-hub#readme",
+  "dependencies": {
+    "vss-web-extension-sdk": "^5.134.0"
+  }
+}

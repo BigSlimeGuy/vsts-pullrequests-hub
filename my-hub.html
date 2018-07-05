@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script src="lib/VSS.SDK.min.js"></script>
+
+    <script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+            usePlatformScripts: true,
+            usePlatformStyles: true
+        });
+
+        VSS.require(["VSS/Service", "VSS/Controls", "VSS/Controls/Grids", "TFS/VersionControl/GitRestClient"], function (Service, Controls, Grids, GitRestClient) {
+            var webContext = VSS.getWebContext();
+            var project = webContext.project.name;
+            var user = webContext.user.name;
+
+            console.log("Current project: " + project);
+            console.log("Current user: " + user);
+
+            var client = GitRestClient.getClient();
+
+            client.getRepositories(project, true).then(function (repositories) {
+                console.log("Repos in " + project + ": " + repositories.length);
+
+                repositories.forEach(function (repository) {
+                    console.log("Scanning repo: " + repository.name);
+
+                    client.getPullRequests(repository.id, { status: "Active" }).then(function (pullRequests) {
+                        console.log("Active pull requests in " + repository.name + ": " + pullRequests.length);
+
+                        pullRequests.forEach(function (pullRequest) {
+                            console.log({
+                                createdBy: pullRequest.createdBy,
+                                id: pullRequest.pullRequestId,
+                                url: pullRequest.url,
+                                title: pullRequest.title,
+                                repo: repository.name
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        VSS.notifyLoadSucceeded();
+
+        // VSS.require(["VSS/Controls", "VSS/Controls/Grids",
+        //     "VSS/Service", "TFS/VersionControl/GitRestClient"],
+        //     function (Controls, Grids, VSS_Service, TFS_Git_WebApi) {
+        //         var activePullRequests = [];
+        //         // Save the project name to be used later for repository querying
+        //         var webContext = VSS.getWebContext();
+        //         var projectName = webContext.project.name;
+        //         var hostUri = webContext.host.uri;
+        //         var user = webContext.user;
+        //         console.log("UserId: " + user.id + " - UserName: " + user.name);     
+        //         // Get a client to make REST calls to VSTS
+        //         var gitClient = TFS_Git_WebApi.getClient();
+        //         // Call the "getRepositories" REST endpoint, giving a query ID
+        //         gitClient.getRepositories(projectName, true)
+        //             .then(function (repos) {
+        //                 console.log("Total repos in " + projectName + ": " + repos.length);
+        //                 var prs = [];
+        //                 repos.forEach(function (r) {
+        //                     //console.log("Repo " + r.name);
+        //                     gitClient.getPullRequests(r.id, { status: "Active" })
+        //                         .then(function (prs) {
+        //                             if (prs.length > 0) {
+        //                                 prs.forEach(function (p) {
+        //                                     gitClient.getPullRequestReviewers(r.id, p.pullRequestId, projectName)
+        //                                         .then(function (reviewers) {
+        //                                             console.log(reviewers);
+        //                                             var userVote = -1;
+        //                                             var isUserAReviewer = reviewers.filter(function (e) {
+        //                                                 return e.id == user.id
+        //                                             });
+        //                                             if (isUserAReviewer.length > 0) {
+        //                                                 userVote = isUserAReviewer[0].vote;
+        //                                             }
+        //                                             activePullRequests.push({
+        //                                                 createdBy: p.createdBy,
+        //                                                 id: p.pullRequestId,
+        //                                                 url: p.url,
+        //                                                 title: p.title,
+        //                                                 repo: r.name,
+        //                                                 vote: userVote
+        //                                             });
+        //                                             grid.setDataSource(activePullRequests);
+        //                                         });
+        //                                 });
+        //                             }
+        //                         });
+        //                 });
+        //             });
+        //         window.setTimeout(function () {
+        //             prCount = activePullRequests.length;
+        //             if (prCount === 0) {
+        //                 grid.setDataSource([{
+        //                     createdBy: "",
+        //                     id: "",
+        //                     title: "",
+        //                     repo: "",
+        //                     vote: ""
+        //                 }]);
+        //             }
+        //             $("#hub-title").text($("#hub-title").text() + " (" + prCount + " pull requests)");
+        //         }, 5000);
+        //         VSS.notifyLoadSucceeded();
+        //     });
+    </script>
+</head>
+
+<body>
+    <div id="hub-title" title="Pull Request Hub">Pull Request Hub</div>
+    <div id="grid-container"></div>
+    <div id="log"></div>
+</body>
+
+</html>
